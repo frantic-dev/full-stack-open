@@ -1,5 +1,5 @@
 const Total = (props) => {
-  let total = props.exercises1 + props.exercises2 + props.exercises3;
+  let total = props.parts[0].exercises + props.parts[1].exercises + props.parts[2].exercises;
   return <div>Number of exercises {total} </div>;
 };
 export default Total;
