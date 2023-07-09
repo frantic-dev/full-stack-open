@@ -1,5 +1,13 @@
 import { useState } from "react";
 
+const Anecdote = (props) => {
+  return (
+    <div>
+      {props.anecdote} <br /> has {props.votes} votes{" "}
+    </div>
+  );
+};
+
 const App = () => {
   const anecdotes = [
     "If it hurts, do it more often.",
@@ -15,6 +23,8 @@ const App = () => {
     Array.from({ length: anecdotes.length }).fill(0)
   );
   const [selected, setSelected] = useState(0);
+  const mostVoted = Math.max(...votes);
+  const mostVotedIndex = votes.indexOf(mostVoted);
 
   function handleRandomAnecdote() {
     setSelected(Math.floor(Math.random() * anecdotes.length));
@@ -31,11 +41,16 @@ const App = () => {
 
   return (
     <div>
-      {anecdotes[selected]}
-      <div>has {votes[selected]} votes</div>
+      <h1>anecdote of the day</h1>
       <br />
+      <Anecdote anecdote={anecdotes[selected]} votes={votes[selected]} />
       <button onClick={handleVote}>Vote</button>
       <button onClick={handleRandomAnecdote}>next anecdote</button>
+      <h1>anecdote with most votes</h1>
+      <Anecdote
+        anecdote={anecdotes[mostVotedIndex]}
+        votes={votes[mostVotedIndex]}
+      />
     </div>
   );
 };
