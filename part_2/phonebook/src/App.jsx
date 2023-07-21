@@ -1,10 +1,9 @@
 import { useEffect } from "react";
-import {  useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -18,26 +17,25 @@ const App = () => {
 
   const numbersToShow = filter !== "" ? filtered : persons;
 
-  useEffect(()=> {
-    axios
-      .get("http://localhost:3000/persons")
-      .then(response => {
-        setPersons(response.data)
-      })
+  useEffect(() => {
+    axios.get("http://localhost:3000/persons").then((response) => {
+      setPersons(response.data);
+    });
+  }, []);
 
-  },[])
-
-  const handleSubmit = (e) => {
+  const addNumber = (e) => {
     e.preventDefault();
+    const newPerson = {
+      name: newName,
+      number: newNumber,
+      id: persons.length + 1,
+    };
     const names = persons.map((person) => person.name);
     if (!names.includes(newName))
-      setPersons((persons) =>
-        persons.concat({
-          name: newName,
-          number: newNumber,
-          id: persons.length + 1,
-        })
-      );
+      axios
+        .post("http://localhost:3000/persons", newPerson)
+        .then((response) => response.data)
+        .then(setPersons(persons.concat(newPerson)));
     else alert(`${newName} is already added to phonebook`);
     setNewName("");
     setNewNumber("");
@@ -53,7 +51,7 @@ const App = () => {
         handleName={(e) => setNewName(e.target.value)}
         newNumber={newNumber}
         handleNumber={(e) => setNewNumber(e.target.value)}
-        handleSubmit={handleSubmit}
+        handleSubmit={addNumber}
       />
       <h2> Numbers</h2>
       <Persons persons={persons} numbersToShow={numbersToShow} />
