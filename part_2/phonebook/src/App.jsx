@@ -40,6 +40,9 @@ const App = () => {
     setNewNumber("");
   };
 
+  const deleteNumber = (id) =>
+    setPersons(persons.filter((person) => person.id !== id));
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -53,7 +56,7 @@ const App = () => {
         handleSubmit={addNumber}
       />
       <h2> Numbers</h2>
-      <Persons persons={persons} numbersToShow={numbersToShow} />
+      <Persons persons={persons} numbersToShow={numbersToShow} deleteNumber={deleteNumber}/>
     </div>
   );
 };
