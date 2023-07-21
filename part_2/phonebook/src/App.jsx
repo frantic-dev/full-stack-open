@@ -25,17 +25,38 @@ const App = () => {
 
   const addNumber = (e) => {
     e.preventDefault();
+
     const newPerson = {
       name: newName,
       number: newNumber,
       id: persons.length + 1,
     };
     const names = persons.map((person) => person.name);
-    if (!names.includes(newName))
+    const numbers = persons.map((person) => person.number);
+
+    if (!names.includes(newName) && !numbers.includes(newNumber))
       personService
         .create(newPerson)
         .then(setPersons(persons.concat(newPerson)));
-    else alert(`${newName} is already added to phonebook`);
+    else if (names.includes(newName) && !numbers.includes(newNumber)) {
+      if (
+        window.confirm(
+          "are you sure you want to replace " + newName + " 's old number?"
+        )
+      ) {
+        const id = persons.find((person) => person.name === newName).id;
+        console.log(id);
+        personService
+          .update(id, newPerson)
+          .then((updatedNumber) =>
+            setPersons(
+              persons.map((person) =>
+                person.name !== newName ? person : updatedNumber
+              )
+            )
+          );
+      }
+    } else alert(`${newName} is already added to phonebook`);
     setNewName("");
     setNewNumber("");
   };
@@ -56,7 +77,11 @@ const App = () => {
         handleSubmit={addNumber}
       />
       <h2> Numbers</h2>
-      <Persons persons={persons} numbersToShow={numbersToShow} deleteNumber={deleteNumber}/>
+      <Persons
+        persons={persons}
+        numbersToShow={numbersToShow}
+        deleteNumber={deleteNumber}
+      />
     </div>
   );
 };
