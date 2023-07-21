@@ -10,6 +10,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState(null);
 
   const filtered = persons.filter((person) =>
     person.name.toLowerCase().match(filter)
@@ -23,6 +24,17 @@ const App = () => {
     });
   }, []);
 
+  const Notification = ({ message }) => {
+    return <div className="notification">{message}</div>;
+  };
+
+  const notify = (message) => {
+    setNotificationMessage(message);
+    setTimeout(() => {
+      setNotificationMessage(null);
+    }, 3000);
+  };
+
   const addNumber = (e) => {
     e.preventDefault();
 
@@ -34,11 +46,12 @@ const App = () => {
     const names = persons.map((person) => person.name);
     const numbers = persons.map((person) => person.number);
 
-    if (!names.includes(newName) && !numbers.includes(newNumber))
-      personService
-        .create(newPerson)
-        .then(setPersons(persons.concat(newPerson)));
-    else if (names.includes(newName) && !numbers.includes(newNumber)) {
+    if (!names.includes(newName) && !numbers.includes(newNumber)) {
+      personService.create(newPerson).then(() => {
+        setPersons(persons.concat(newPerson));
+        notify("added " + newPerson.name);
+      });
+    } else if (names.includes(newName) && !numbers.includes(newNumber)) {
       if (
         window.confirm(
           "are you sure you want to replace " + newName + " 's old number?"
@@ -55,6 +68,7 @@ const App = () => {
               )
             )
           );
+          notify("changed " + newName +"'s number")
       }
     } else alert(`${newName} is already added to phonebook`);
     setNewName("");
@@ -66,6 +80,7 @@ const App = () => {
 
   return (
     <div>
+      {notificationMessage && <Notification message={notificationMessage} />}
       <h2>Phonebook</h2>
       <Filter filter={filter} handleChange={(e) => setFilter(e.target.value)} />
       <h2>add a new</h2>
