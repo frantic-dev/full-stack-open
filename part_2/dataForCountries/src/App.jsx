@@ -6,20 +6,22 @@ import Loader from "./components/Loader";
 function App() {
   const [value, setValue] = useState("");
   const [searchedCountry, setSearchedCountry] = useState("");
-  const [countriesData, setCountriesData] = useState(null);
   const [countries, setCountries] = useState(null);
   const [searchNumber, setSearchNumber] = useState([]);
   const [results, setResults] = useState("");
   const [loading, setLoading] = useState(false);
+  const [country, setCountry] = useState(null);
+
   function handleChange(e) {
     setValue(e.target.value);
   }
+
+  //get data and an array of all countries names
 
   useEffect(() => {
     axios
       .get("https://studies.cs.helsinki.fi/restcountries/api/all")
       .then((response) => {
-        setCountriesData(response.data);
         return response.data;
       })
       .then((data) => {
@@ -27,6 +29,36 @@ function App() {
         setLoading(false);
       });
   }, []);
+
+  //display the one country user searches or clicked show button for
+
+  function showCountry(country) {
+    axios
+      .get("https://studies.cs.helsinki.fi/restcountries/api/name/" + country)
+      .then((response) => response.data)
+      .then((country) =>
+        setCountry(
+          <div>
+            <h2>{country.name.common}</h2>
+            <p>
+              capital {country.capital} <br /> area {country.area}{" "}
+            </p>
+            <h3>languages</h3>
+            <ul>
+              {Object.values(country.languages).map((language) => (
+                <li key={language}>{language}</li>
+              ))}
+            </ul>
+            <img
+              src={country.flags.png}
+              alt={"image of " + country + "'s flag"}
+            />
+          </div>
+        )
+      );
+  }
+
+  //get number of countries that match the search query
 
   useEffect(() => {
     if (countries) {
@@ -37,38 +69,24 @@ function App() {
     }
   }, [searchedCountry]);
 
+  //the results to display after search
+
   useEffect(() => {
     if (searchNumber.length > 10)
       setResults("Too many matches, specify another filter");
     else if (searchNumber.length < 10 && searchNumber.length !== 1)
       setResults(
-        searchNumber.map((country) => <div key={country}>{country}</div>)
+        searchNumber.map((country) => (
+          <div key={country}>
+            {country}
+            <button onClick={() => showCountry(country)}>show</button>
+          </div>
+        ))
       );
     else {
       const country = searchNumber[0];
-      axios
-        .get("https://studies.cs.helsinki.fi/restcountries/api/name/" + country)
-        .then((response) => response.data)
-        .then((country) =>
-          setResults(
-            <div>
-              <h2>{country.name.common}</h2>
-              <p>
-                capital {country.capital} <br /> area {country.area}{" "}
-              </p>
-              <h3>languages</h3>
-              <ul>
-                {Object.values(country.languages).map((language) => (
-                  <li key={language}>{language}</li>
-                ))}
-              </ul>
-              <img
-                src={country.flags.png}
-                alt={"image of " + country + "'s flag"}
-              />
-            </div>
-          )
-        );
+      showCountry(country);
+      setResults(null);
     }
   }, [searchNumber]);
 
@@ -87,6 +105,7 @@ function App() {
       <div>number of match {searchNumber.length}</div>
       {loading ? <Loader /> : null}
       <div>{results}</div>
+      <div>{country}</div>
     </div>
   );
 }
