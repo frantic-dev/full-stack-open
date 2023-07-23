@@ -24,12 +24,12 @@ const App = () => {
     });
   }, []);
 
-  const Notification = ({ message }) => {
-    return <div className="notification">{message}</div>;
+  const Notification = ({ message, messageType }) => {
+    return <div className={messageType}>{message}</div>;
   };
 
-  const notify = (message) => {
-    setNotificationMessage(message);
+  const notify = (message, messageType) => {
+    setNotificationMessage({ message, messageType });
     setTimeout(() => {
       setNotificationMessage(null);
     }, 3000);
@@ -49,7 +49,7 @@ const App = () => {
     if (!names.includes(newName) && !numbers.includes(newNumber)) {
       personService.create(newPerson).then(() => {
         setPersons(persons.concat(newPerson));
-        notify("added " + newPerson.name);
+        notify("added " + newPerson.name, "notification");
       });
     } else if (names.includes(newName) && !numbers.includes(newNumber)) {
       if (
@@ -67,8 +67,17 @@ const App = () => {
                 person.name !== newName ? person : updatedNumber
               )
             )
-          );
-          notify("changed " + newName +"'s number")
+          )
+          .catch((error) => {
+            notify(
+              "information of " +
+                newName +
+                " has already been removed from server.",
+              "error"
+            );
+            setPersons(persons.filter((person) => person.name !== newName));
+          });
+        notify("changed " + newName + "'s number", "notification");
       }
     } else alert(`${newName} is already added to phonebook`);
     setNewName("");
@@ -80,7 +89,12 @@ const App = () => {
 
   return (
     <div>
-      {notificationMessage && <Notification message={notificationMessage} />}
+      {notificationMessage && (
+        <Notification
+          message={notificationMessage.message}
+          messageType={notificationMessage.messageType}
+        />
+      )}
       <h2>Phonebook</h2>
       <Filter filter={filter} handleChange={(e) => setFilter(e.target.value)} />
       <h2>add a new</h2>
