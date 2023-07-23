@@ -10,7 +10,8 @@ function App() {
   const [searchNumber, setSearchNumber] = useState([]);
   const [results, setResults] = useState("");
   const [loading, setLoading] = useState(false);
-  const [country, setCountry] = useState(null);
+  const [displayCountry, setDisplayCountry] = useState(null);
+  const api = import.meta.env.VITE_API_KEY;
 
   function handleChange(e) {
     setValue(e.target.value);
@@ -36,26 +37,42 @@ function App() {
     axios
       .get("https://studies.cs.helsinki.fi/restcountries/api/name/" + country)
       .then((response) => response.data)
-      .then((country) =>
-        setCountry(
-          <div>
-            <h2>{country.name.common}</h2>
-            <p>
-              capital {country.capital} <br /> area {country.area}{" "}
-            </p>
-            <h3>languages</h3>
-            <ul>
-              {Object.values(country.languages).map((language) => (
-                <li key={language}>{language}</li>
-              ))}
-            </ul>
-            <img
-              src={country.flags.png}
-              alt={"image of " + country + "'s flag"}
-            />
-          </div>
-        )
-      );
+      .then((countryData) => {
+        axios
+          .get(
+            `http://api.openweathermap.org/data/2.5/weather?q=${countryData.capital}&units=metric&appid=${api}`
+          )
+          .then((response) => response.data)
+          .then((weather) => {
+            console.log(weather)
+            setDisplayCountry(
+              <div>
+                <h2>{countryData.name.common}</h2>
+                <p>
+                  capital {countryData.capital} <br /> area {countryData.area}{" "}
+                </p>
+                <h3>languages</h3>
+                <ul>
+                  {Object.values(countryData.languages).map((language) => (
+                    <li key={language}>{language}</li>
+                  ))}
+                </ul>
+                <img
+                  src={countryData.flags.png}
+                  alt={"image of " + countryData + "'s flag"}
+                />
+                <h2>weather in {country} </h2>
+                <p>temperature {weather.main.temp} Celsius</p>
+                <img src={" https://openweathermap.org/img/wn/" + weather.weather[0].icon + "@2x.png"} alt="" />
+              </div>
+            );
+          });
+        // .then((weather) => setCountry(country + (
+        //   <div>
+
+        //   </div>
+        // )));
+      });
   }
 
   //get number of countries that match the search query
@@ -105,7 +122,7 @@ function App() {
       <div>number of match {searchNumber.length}</div>
       {loading ? <Loader /> : null}
       <div>{results}</div>
-      <div>{country}</div>
+      <div>{displayCountry}</div>
     </div>
   );
 }
