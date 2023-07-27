@@ -1,21 +1,24 @@
 import axios from "axios";
+
+const baseUrl = "http://localhost:3001/api/persons/";
+
 const getAll = () => {
-  const request = axios.get("http://localhost:3000/persons");
+  const request = axios.get(baseUrl);
   return request.then((response) => response.data);
 };
 
 const create = (newPerson) => {
-  const request = axios.post("http://localhost:3000/persons", newPerson);
+  const request = axios.post(baseUrl, newPerson);
   return request.then((response) => response.data);
 };
 
 const remove = (id) => {
-  const request = axios.delete("http://localhost:3000/persons/" + id);
+  const request = axios.delete(baseUrl + id);
   return request.then((response) => response.data);
 };
 
 const update = (id, newNumber) => {
-  const request = axios.put("http://localhost:3000/persons/" + id, newNumber);
+  const request = axios.put(baseUrl + id, newNumber);
   return request.then((response) => response.data);
 };
 export default { getAll, create, remove, update };
